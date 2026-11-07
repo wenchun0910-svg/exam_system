@@ -343,7 +343,14 @@
         // Initialize Firebase
         async function initFirebase() {
             try {
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            const firebaseConfig = {
+  apiKey: "AIzaSyDMhYJCiaND_Iqhe0YLknBsoznSk2JasVY",
+  authDomain: "examsystem-507ea.firebaseapp.com",
+  projectId: "examsystem-507ea",
+  storageBucket: "examsystem-507ea.firebasestorage.app",
+  messagingSenderId: "745111861914",
+  appId: "1:745111861914:web:c48518d8424fb8ea297d23"
+};
                     // Fallback mock config to prevent crash if not in Immersive env
                     apiKey: "mock", authDomain: "mock", projectId: "mock"
                 };
