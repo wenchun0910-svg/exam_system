@@ -279,7 +279,7 @@
         import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // ⚠️ 請填入您的 Firebase 設定 (重要！)
-                const firebaseConfig = {
+              const firebaseConfig = {
   apiKey: "AIzaSyDMhYJCiaND_Iqhe0YLknBsoznSk2JasVY",
   authDomain: "examsystem-507ea.firebaseapp.com",
   projectId: "examsystem-507ea",
@@ -545,7 +545,6 @@
                 <div class="hand-drawn-border p-3 md:p-4 w-40 md:w-48 flex flex-col justify-between backdrop-blur-sm">
                     <div class="flex justify-between items-center border-b border-white/30 pb-2 mb-3">
                         <span class="text-xl md:text-2xl font-bold tracking-widest">${s.subject}</span>
-                        <div class="text-white/60 text-xs md:text-sm"><i class="fa-solid fa-pencil mr-1"></i><i class="fa-solid fa-eraser"></i></div>
                     </div>
                     <div class="flex items-center text-base md:text-lg font-mono tracking-wider font-bold">
                         <i class="fa-regular fa-clock text-white/50 mr-2 md:mr-3 text-xl md:text-2xl"></i>
@@ -595,7 +594,7 @@
             let html = '';
             
             if (type === 'class') {
-                const d = dataId ? state.classes.find(c => c.id === dataId) : { name: '', grade: '7', pin: '1234', expected: 30, actual: 30 };
+                const d = dataId ? state.classes.find(c => c.id === dataId) : { name: '', grade: '6', pin: '1234', expected: 30, actual: 30 };
                 html = `
                     <div class="space-y-4">
                         <div><label class="font-bold text-sm">班級名稱</label><input type="text" id="i-name" class="w-full border p-2 rounded" value="${d.name}"></div>
@@ -613,7 +612,7 @@
                     modal.classList.remove('active'); showMsg('成功', '儲存完畢', 'success');
                 };
             } else if (type === 'schedule') {
-                const d = dataId ? state.schedules.find(s => s.id === dataId) : { subject: '', grade: '7', startTime: '08:10', endTime: '09:30' };
+                const d = dataId ? state.schedules.find(s => s.id === dataId) : { subject: '', grade: '6', startTime: '08:10', endTime: '09:30' };
                 html = `
                     <div class="space-y-4">
                         <div><label class="font-bold text-sm">科目</label><input type="text" id="i-sub" class="w-full border p-2 rounded" value="${d.subject}"></div>
@@ -624,13 +623,22 @@
                         </div>
                     </div>`;
                 saveBtn.onclick = async () => {
-                    const p = { subject: document.getElementById('i-sub').value, grade: document.getElementById('i-grd').value, startTime: document.getElementById('i-st').value, endTime: document.getElementById('i-et').value };
+                    const startTime = document.getElementById('i-st').value;
+                    const endTime = document.getElementById('i-et').value;
+                    
+                    // 防呆驗證：開始時間必須小於結束時間
+                    if (startTime >= endTime) {
+                        showMsg('錯誤', '開始時間必須早於結束時間！', 'error');
+                        return;
+                    }
+                    
+                    const p = { subject: document.getElementById('i-sub').value, grade: document.getElementById('i-grd').value, startTime, endTime };
                     if(dataId) await updateDoc(doc(db, getCollectionPath('schedules'), dataId), p);
                     else await addDoc(collection(db, getCollectionPath('schedules')), p);
                     modal.classList.remove('active'); showMsg('成功', '儲存完畢', 'success');
                 };
             } else if (type === 'announcement') {
-                const d = dataId ? state.announcements.find(a => a.id === dataId) : { title: '', content: '', imageUrl: '', grade: '7' };
+                const d = dataId ? state.announcements.find(a => a.id === dataId) : { title: '', content: '', imageUrl: '', grade: '6' };
                 html = `
                     <div class="space-y-4">
                         <div><label class="font-bold text-sm">標題</label><input type="text" id="i-ti" class="w-full border p-2 rounded" value="${d.title}"></div>
