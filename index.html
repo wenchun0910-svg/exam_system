@@ -10,60 +10,42 @@
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f0f4f8; /* 淺藍灰底色 */
             margin: 0;
             overflow-x: hidden;
         }
-        /* Chalkboard Theme for Schedule */
+        /* 日式深藍色黑板 (已移除底部黑線與多餘高度) */
         .chalkboard-bg {
-            background-color: #2b3a38;
-            background-image: radial-gradient(#3a4a48 1px, transparent 1px);
+            background-color: #1a2f4c; 
+            background-image: radial-gradient(#2a4060 1px, transparent 1px);
             background-size: 20px 20px;
-            border-bottom: 4px solid #1a2423;
         }
         .hand-drawn-border {
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.7);
             border-radius: 8px 12px 10px 6px / 10px 6px 12px 8px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.08);
         }
-        /* Glow text for clock */
         .glow-text {
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+            text-shadow: 0 0 12px rgba(255,255,255,0.4);
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
         
         .modal {
             display: none;
             position: fixed;
-            z-index: 50;
+            z-index: 80;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
         }
-        .modal.active {
-            display: flex;
-        }
-        
-        /* Smooth transitions */
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
+        .modal.active { display: flex; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -72,91 +54,91 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden text-gray-800">
 
-    <!-- App Container -->
-    <div id="app" class="w-full h-full flex flex-col hidden">
+    <!-- App Container (預設顯示) -->
+    <div id="app" class="w-full h-full flex flex-col">
         
-        <!-- TOP SECTION: Chalkboard & Schedule -->
-        <div class="chalkboard-bg text-white px-8 py-6 shadow-xl relative flex-shrink-0">
-            <!-- Header Info -->
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h1 class="text-4xl font-bold tracking-wider" id="display-class-name">--</h1>
-                    <p class="text-gray-300 text-lg mt-1"><span id="display-grade">--</span> 年級 <span class="ml-4 text-sm text-gray-400" id="display-mode-text"></span></p>
-                </div>
-                <div class="text-right">
-                    <div class="text-7xl font-bold font-mono tracking-widest glow-text mb-2" id="main-clock">00:00:00</div>
-                    <p class="text-yellow-100 text-xl tracking-widest opacity-90">各位同學，考試加油！細心作答喔！</p>
-                </div>
-                
-                <!-- Controls -->
-                <div class="absolute top-6 right-8 flex gap-3">
-                    <button id="btn-admin-panel" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded shadow transition">
-                        <i class="fa-solid fa-gear mr-2"></i>管理後台
-                    </button>
-                    <button id="btn-change-password" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded shadow transition backdrop-blur-sm">
-                        <i class="fa-solid fa-key mr-2"></i>修改密碼
-                    </button>
-                    <button id="btn-logout" class="bg-red-500/80 hover:bg-red-500 text-white px-4 py-2 rounded shadow transition backdrop-blur-sm">
-                        <i class="fa-solid fa-sign-out-alt mr-2"></i>登出
-                    </button>
-                </div>
+        <!-- 上半部：黑板與考試時程 (高度隨內容縮放) -->
+        <div class="chalkboard-bg text-white shadow-xl relative flex-shrink-0 p-4 md:p-6 flex flex-col items-center">
+            
+            <!-- 左上角：小圖示管理控制項 -->
+            <div class="absolute top-4 left-4 flex gap-2 z-20">
+                <button id="btn-fullscreen" class="bg-indigo-600/80 hover:bg-indigo-500 text-white px-3 py-1.5 rounded shadow text-sm backdrop-blur-sm transition flex items-center">
+                    <i class="fa-solid fa-expand mr-1.5"></i>全螢幕
+                </button>
+                <button id="btn-login-modal" class="bg-blue-600/80 hover:bg-blue-500 text-white px-3 py-1.5 rounded shadow text-sm backdrop-blur-sm transition flex items-center">
+                    <i class="fa-solid fa-user mr-1.5"></i>登入
+                </button>
+                <button id="btn-admin-panel" class="hidden bg-blue-700 hover:bg-blue-600 text-white px-3 py-1.5 rounded shadow text-sm backdrop-blur-sm transition flex items-center">
+                    <i class="fa-solid fa-gear mr-1.5"></i>管理後台
+                </button>
+                <button id="btn-logout" class="hidden bg-red-500/80 hover:bg-red-500 text-white px-3 py-1.5 rounded shadow text-sm backdrop-blur-sm transition flex items-center">
+                    <i class="fa-solid fa-sign-out-alt mr-1.5"></i>登出
+                </button>
             </div>
 
-            <!-- Schedules Container -->
-            <div id="schedule-container" class="flex flex-wrap gap-6 justify-center pb-2">
-                <!-- Schedule Cards Injected Here -->
+            <!-- 右上角：時鐘 -->
+            <div class="absolute top-4 right-8 text-right z-20">
+                <div class="text-5xl md:text-7xl font-bold font-mono tracking-widest glow-text mb-1 md:mb-2" id="main-clock">00:00:00</div>
+                <p class="text-blue-100 text-base md:text-xl tracking-widest opacity-90">各位同學，考試加油！細心作答喔！</p>
+            </div>
+
+            <!-- 正上方：科目時程表 (移除多餘底部高度，自然撐開空間) -->
+            <div class="relative z-10 w-full flex justify-center mt-2 pb-4">
+                <div id="schedule-container" class="flex flex-wrap gap-4 md:gap-6 justify-center max-w-[50%] min-h-[100px]">
+                    <!-- 預設載入文字，資料載入後會被替換 -->
+                    <div class="text-gray-400 opacity-60 mt-6">載入時程中...</div>
+                </div>
             </div>
         </div>
 
-        <!-- BOTTOM SECTION: Attendance & Announcements -->
-        <div class="flex-1 p-6 flex gap-6 overflow-hidden bg-gray-50">
+        <!-- 下半部：出席人數與即時公告 -->
+        <div class="flex-1 p-6 flex gap-6 overflow-hidden bg-[#e0eaf5]">
             
-            <!-- LEFT: Attendance Board -->
-            <div class="w-1/3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
-                <div class="p-5 border-b border-gray-100 bg-white flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
-                        <i class="fa-solid fa-users text-teal-600 mr-3"></i>考場出席人數即時看板
+            <!-- 左側：出席人數面板 -->
+            <div class="w-1/3 bg-white rounded-2xl shadow-sm border border-blue-100 flex flex-col overflow-hidden">
+                <div class="p-5 border-b border-blue-50 bg-white flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-users text-blue-600 mr-3"></i>考場出席人數即時看板
                     </h2>
-                    <span class="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-bold">即時連線同步</span>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-bold">即時連線同步</span>
                 </div>
                 <div class="p-6 flex-1 flex flex-col gap-6">
                     <div class="flex gap-4">
-                        <div class="flex-1 bg-gray-50 rounded-xl p-4 border border-gray-200">
-                            <p class="text-sm text-gray-500 font-bold mb-1">應到人數</p>
-                            <div class="text-4xl font-black text-gray-800"><span id="board-expected">0</span> <span class="text-lg font-normal text-gray-500">人</span></div>
+                        <div class="flex-1 bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <p class="text-sm text-slate-500 font-bold mb-1">應到人數</p>
+                            <div class="text-4xl font-black text-slate-700"><span id="board-expected">0</span> <span class="text-lg font-normal text-slate-400">人</span></div>
                         </div>
-                        <div class="flex-1 bg-teal-50 rounded-xl p-4 border border-teal-100">
-                            <p class="text-sm text-teal-700 font-bold mb-1">實到人數</p>
-                            <div class="text-4xl font-black text-teal-600"><span id="board-actual">0</span> <span class="text-lg font-normal text-teal-600/70">人</span></div>
+                        <div class="flex-1 bg-blue-50 rounded-xl p-4 border border-blue-200">
+                            <p class="text-sm text-blue-700 font-bold mb-1">實到人數</p>
+                            <div class="text-4xl font-black text-blue-600"><span id="board-actual">0</span> <span class="text-lg font-normal text-blue-600/70">人</span></div>
                         </div>
                     </div>
-                    
-                    <div class="flex-1 bg-red-50 rounded-xl p-6 border border-red-100 flex flex-col justify-center items-center relative overflow-hidden">
+                    <div class="flex-1 bg-red-50/80 rounded-xl p-6 border border-red-100 flex flex-col justify-center items-center relative overflow-hidden">
                         <i class="fa-solid fa-user-xmark absolute text-9xl text-red-500/5 -right-6 -bottom-6"></i>
                         <h3 class="text-lg font-bold text-red-800 mb-2 w-full text-left z-10">缺席總數</h3>
-                        <div class="text-7xl font-black text-red-700 z-10"><span id="board-absent">0</span> <span class="text-2xl font-bold text-red-500">人</span></div>
+                        <div class="text-7xl font-black text-red-600 z-10"><span id="board-absent">0</span> <span class="text-2xl font-bold text-red-400">人</span></div>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT: Announcements Board -->
-            <div class="w-2/3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden relative">
-                <div class="p-5 border-b border-gray-100 bg-white flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
+            <!-- 右側：公告面板 -->
+            <div class="w-2/3 bg-white rounded-2xl shadow-sm border border-blue-100 flex flex-col overflow-hidden relative">
+                <div class="p-5 border-b border-blue-50 bg-white flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center">
                         <i class="fa-regular fa-bell text-amber-500 mr-3"></i>試題更正與考務即時公告
                     </h2>
-                    <span class="text-sm text-gray-500" id="announcement-count-label">共 0 則</span>
+                    <span class="text-sm text-slate-500" id="announcement-count-label">共 0 則</span>
                 </div>
                 
-                <!-- Empty State -->
-                <div id="no-announcement-state" class="flex-1 flex flex-col items-center justify-center text-gray-400">
+                <!-- 無公告狀態 -->
+                <div id="no-announcement-state" class="flex-1 flex flex-col items-center justify-center text-slate-400">
                     <i class="fa-solid fa-mug-hot text-6xl mb-4 opacity-50"></i>
                     <p class="text-lg font-bold">目前無任何考務公告</p>
                     <p class="text-sm mt-2">請安心應考</p>
                 </div>
 
-                <!-- Announcements List -->
-                <div id="announcement-container" class="flex-1 overflow-y-auto p-6 hidden space-y-6 bg-amber-50/30">
+                <!-- 公告列表 -->
+                <div id="announcement-container" class="flex-1 overflow-y-auto p-6 hidden space-y-6 bg-slate-50/50">
                     <!-- Cards Injected Here -->
                 </div>
             </div>
@@ -165,185 +147,137 @@
     </div>
 
     <!-- Login Modal -->
-    <div id="modal-login" class="modal active justify-center items-center">
+    <div id="modal-login" class="modal justify-center items-center z-[90]">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden fade-in">
-            <div class="bg-teal-600 text-white p-6 text-center">
+            <div class="bg-blue-700 text-white p-6 text-center relative">
+                <button class="absolute top-4 right-4 text-white/70 hover:text-white close-login-modal"><i class="fa-solid fa-xmark text-xl"></i></button>
                 <i class="fa-solid fa-school text-4xl mb-3"></i>
-                <h2 class="text-2xl font-bold">智慧考場系統登入</h2>
+                <h2 class="text-2xl font-bold">系統登入</h2>
             </div>
             <div class="p-6">
-                <!-- Role Toggle -->
-                <div class="flex rounded-lg bg-gray-100 p-1 mb-6">
-                    <button id="tab-student" class="flex-1 py-2 text-sm font-bold rounded-md bg-white shadow text-teal-700 transition">班級登入</button>
-                    <button id="tab-admin" class="flex-1 py-2 text-sm font-bold rounded-md text-gray-500 hover:text-gray-700 transition">管理員登入</button>
+                <div class="flex rounded-lg bg-slate-100 p-1 mb-6">
+                    <button id="tab-student" class="flex-1 py-2 text-sm font-bold rounded-md bg-white shadow text-blue-700 transition">班級登入</button>
+                    <button id="tab-admin" class="flex-1 py-2 text-sm font-bold rounded-md text-slate-500 hover:text-slate-700 transition">管理員登入</button>
                 </div>
 
-                <!-- Student Login Form -->
                 <div id="form-student">
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">選擇班級</label>
-                        <select id="login-class-select" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500">
+                        <label class="block text-slate-700 text-sm font-bold mb-2">選擇班級</label>
+                        <select id="login-class-select" class="w-full p-3 border border-slate-300 rounded focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                             <option value="">載入班級中...</option>
                         </select>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">班級密碼</label>
-                        <input type="password" id="login-class-pin" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" placeholder="輸入密碼">
+                        <label class="block text-slate-700 text-sm font-bold mb-2">班級密碼</label>
+                        <input type="password" id="login-class-pin" class="w-full p-3 border border-slate-300 rounded focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="輸入密碼">
                     </div>
-                    <button id="btn-login-class" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded transition">
-                        進入考場看板
+                    <button id="btn-login-class" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition">
+                        登入
                     </button>
                 </div>
 
-                <!-- Admin Login Form -->
                 <div id="form-admin" class="hidden">
                     <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">管理員密碼</label>
-                        <input type="password" id="login-admin-pass" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500" placeholder="輸入管理員密碼 (預設: admin)">
+                        <label class="block text-slate-700 text-sm font-bold mb-2">管理員密碼</label>
+                        <input type="password" id="login-admin-pass" class="w-full p-3 border border-slate-300 rounded focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500" placeholder="輸入管理員密碼 (預設: admin)">
                     </div>
-                    <button id="btn-login-admin" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded transition">
+                    <button id="btn-login-admin" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded transition">
                         登入管理後台
                     </button>
                 </div>
-                
                 <p id="login-error" class="text-red-500 text-sm text-center mt-4 hidden"></p>
             </div>
         </div>
     </div>
 
     <!-- Admin Panel Modal -->
-    <div id="modal-admin" class="modal justify-center items-center py-8">
+    <div id="modal-admin" class="modal justify-center items-center py-8 z-[80]">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl h-full max-h-[90vh] flex flex-col fade-in">
-            <div class="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-xl">
-                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-gear text-gray-500 mr-2"></i>系統管理後台</h2>
-                <button id="btn-close-admin" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-xl">
+                <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-gear text-slate-500 mr-2"></i>系統管理後台</h2>
+                <button id="btn-close-admin" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
-            
             <div class="flex-1 flex overflow-hidden">
                 <!-- Sidebar -->
-                <div class="w-48 bg-gray-100 border-r border-gray-200 flex flex-col p-4 gap-2">
+                <div class="w-48 bg-slate-100 border-r border-slate-200 flex flex-col p-4 gap-2">
                     <button class="admin-tab-btn active w-full text-left px-4 py-3 rounded-lg font-bold bg-white shadow-sm text-blue-600" data-target="admin-classes">班級管理</button>
-                    <button class="admin-tab-btn w-full text-left px-4 py-3 rounded-lg font-bold text-gray-600 hover:bg-gray-200" data-target="admin-schedules">考試時程</button>
-                    <button class="admin-tab-btn w-full text-left px-4 py-3 rounded-lg font-bold text-gray-600 hover:bg-gray-200" data-target="admin-announcements">即時公告</button>
+                    <button class="admin-tab-btn w-full text-left px-4 py-3 rounded-lg font-bold text-slate-600 hover:bg-slate-200" data-target="admin-schedules">考試時程</button>
+                    <button class="admin-tab-btn w-full text-left px-4 py-3 rounded-lg font-bold text-slate-600 hover:bg-slate-200" data-target="admin-announcements">即時公告</button>
                 </div>
-                
                 <!-- Content Area -->
                 <div class="flex-1 overflow-y-auto p-6 bg-white relative">
-                    
-                    <!-- Classes Panel -->
+                    <!-- Panels -->
                     <div id="admin-classes" class="admin-panel block">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-bold">班級列表</h3>
                             <button id="btn-add-class" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"><i class="fa-solid fa-plus mr-1"></i>新增班級</button>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-gray-100 text-gray-600 text-sm">
-                                        <th class="p-3 border-b">班級名稱</th>
-                                        <th class="p-3 border-b">年級</th>
-                                        <th class="p-3 border-b">密碼</th>
-                                        <th class="p-3 border-b">應到/實到</th>
-                                        <th class="p-3 border-b">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="admin-class-list" class="text-sm">
-                                    <!-- Injected -->
-                                </tbody>
-                            </table>
-                        </div>
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 text-sm">
+                                    <th class="p-3 border-b">班級名稱</th><th class="p-3 border-b">年級</th><th class="p-3 border-b">密碼</th><th class="p-3 border-b">應到/實到</th><th class="p-3 border-b">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-class-list" class="text-sm"></tbody>
+                        </table>
                     </div>
-
-                    <!-- Schedules Panel -->
                     <div id="admin-schedules" class="admin-panel hidden">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-bold">考試時程管理</h3>
                             <button id="btn-add-schedule" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"><i class="fa-solid fa-plus mr-1"></i>新增時程</button>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-gray-100 text-gray-600 text-sm">
-                                        <th class="p-3 border-b">科目</th>
-                                        <th class="p-3 border-b">適用年級</th>
-                                        <th class="p-3 border-b">時間</th>
-                                        <th class="p-3 border-b">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="admin-schedule-list" class="text-sm">
-                                    <!-- Injected -->
-                                </tbody>
-                            </table>
-                        </div>
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 text-sm">
+                                    <th class="p-3 border-b">科目</th><th class="p-3 border-b">適用年級</th><th class="p-3 border-b">時間</th><th class="p-3 border-b">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-schedule-list" class="text-sm"></tbody>
+                        </table>
                     </div>
-
-                    <!-- Announcements Panel -->
                     <div id="admin-announcements" class="admin-panel hidden">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-bold">公告管理</h3>
                             <button id="btn-add-announcement" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"><i class="fa-solid fa-plus mr-1"></i>新增公告</button>
                         </div>
-                        <div class="space-y-4" id="admin-announcement-list">
-                            <!-- Injected -->
-                        </div>
+                        <div class="space-y-4" id="admin-announcement-list"></div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Generic Input Modal (for adding/editing data) -->
-    <div id="modal-form" class="modal justify-center items-center">
+    <!-- Generic Input Modal -->
+    <div id="modal-form" class="modal justify-center items-center z-[100]">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden fade-in">
-            <div class="p-4 bg-gray-100 border-b flex justify-between items-center">
-                <h3 class="font-bold text-gray-800" id="form-modal-title">表單</h3>
-                <button class="close-form-modal text-gray-500 hover:text-gray-800">&times;</button>
+            <div class="p-4 bg-slate-100 border-b flex justify-between items-center">
+                <h3 class="font-bold text-slate-800" id="form-modal-title">表單</h3>
+                <button class="close-form-modal text-slate-500 hover:text-slate-800">&times;</button>
             </div>
-            <div class="p-5" id="form-modal-body">
-                <!-- Dynamic form fields injected here -->
-            </div>
-            <div class="p-4 border-t bg-gray-50 flex justify-end gap-2">
-                <button class="close-form-modal px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">取消</button>
+            <div class="p-5" id="form-modal-body"></div>
+            <div class="p-4 border-t bg-slate-50 flex justify-end gap-2">
+                <button class="close-form-modal px-4 py-2 bg-slate-200 text-slate-700 rounded hover:bg-slate-300">取消</button>
                 <button id="btn-form-save" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">儲存</button>
             </div>
         </div>
     </div>
 
-    <!-- Custom Message Box -->
-    <div id="modal-msg" class="modal justify-center items-center" style="z-index: 999;">
+    <!-- Message Box -->
+    <div id="modal-msg" class="modal justify-center items-center z-[110]">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden fade-in text-center p-6">
             <div id="msg-icon" class="text-4xl mb-4"></div>
-            <h3 class="font-bold text-xl text-gray-800 mb-2" id="msg-title">訊息</h3>
-            <p class="text-gray-600 mb-6" id="msg-content">內容</p>
-            <button id="btn-msg-ok" class="w-full px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-bold">確定</button>
+            <h3 class="font-bold text-xl text-slate-800 mb-2" id="msg-title">訊息</h3>
+            <p class="text-slate-600 mb-6" id="msg-content">內容</p>
+            <button id="btn-msg-ok" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold">確定</button>
         </div>
     </div>
 
-    <!-- Firebase SDK Setup -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Global configuration
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'exam-system-demo';
-        let app, db, auth, user;
-        
-        // App State
-        let state = {
-            role: null, // 'admin' or 'class'
-            classInfo: null, // { id, name, grade, ... }
-            classes: [],
-            schedules: [],
-            announcements: [],
-            unsubscribeFns: []
-        };
-
-        // Initialize Firebase
-        async function initFirebase() {
-            try {
-            const firebaseConfig = {
+        // ⚠️ 請填入您的 Firebase 設定 (重要！)
+                   const firebaseConfig = {
   apiKey: "AIzaSyDMhYJCiaND_Iqhe0YLknBsoznSk2JasVY",
   authDomain: "examsystem-507ea.firebaseapp.com",
   projectId: "examsystem-507ea",
@@ -351,82 +285,130 @@
   messagingSenderId: "745111861914",
   appId: "1:745111861914:web:c48518d8424fb8ea297d23"
 };
-                  
-                
-                
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
 
-                // Auth
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                user = auth.currentUser;
+        
+        let app, db;
+        let state = {
+            role: 'public', // public, class, admin
+            classInfo: null,
+            classes: [], schedules: [], announcements: [],
+            unsubscribeFns: []
+        };
+
+        const getCollectionPath = (colName) => `data/${colName}`; // 簡化路徑
+
+        async function initFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
                 
-                if (user) {
-                    await fetchInitialClasses();
-                    setupUIBindings();
-                } else {
-                    showMsg('錯誤', '身分驗證失敗', 'error');
-                }
+                setupUIBindings();
+                fetchInitialClasses();
+                
+                // 預設為公開模式，抓取全部資料展示
+                startPublicMode();
+                
             } catch (err) {
                 console.error("Firebase init error:", err);
-                // Even if firebase fails in preview, let's setup basic UI bindings
-                setupUIBindings();
+                showMsg('錯誤', '無法連接資料庫，請檢查設定檔。', 'error');
             }
         }
 
-        // --- Database Helpers (Following Mandatory Rule 1 & 2) ---
-        const getCollectionPath = (colName) => `artifacts/${appId}/public/data/${colName}`;
-        
         async function fetchInitialClasses() {
-            if(!user) return;
             try {
                 const q = collection(db, getCollectionPath('classes'));
                 const snapshot = await getDocs(q);
                 state.classes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 
-                // Populate login dropdown
                 const select = document.getElementById('login-class-select');
                 select.innerHTML = '<option value="">請選擇班級</option>';
-                // Sort classes locally
                 state.classes.sort((a,b) => a.name.localeCompare(b.name)).forEach(cls => {
                     const opt = document.createElement('option');
                     opt.value = cls.id;
-                    opt.textContent = `${cls.name} (${cls.grade}年級)`;
+                    opt.textContent = `${cls.name}`;
                     select.appendChild(opt);
                 });
-            } catch (err) {
-                console.error("Error fetching classes:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
-        // --- Core UI & Logic ---
-        
-        function showMsg(title, content, type = 'info', callback = null) {
-            const modal = document.getElementById('modal-msg');
-            document.getElementById('msg-title').innerText = title;
-            document.getElementById('msg-content').innerText = content;
-            
-            const icon = document.getElementById('msg-icon');
-            if (type === 'error') {
-                icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500"></i>';
-            } else if (type === 'success') {
-                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i>';
-            } else {
-                icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
-            }
-            
-            modal.classList.add('active');
-            
-            const btnOk = document.getElementById('btn-msg-ok');
-            btnOk.onclick = () => {
-                modal.classList.remove('active');
-                if (callback) callback();
+        function setupUIBindings() {
+            setInterval(updateClock, 1000); updateClock();
+
+            // 全螢幕切換功能
+            const btnFullscreen = document.getElementById('btn-fullscreen');
+            btnFullscreen.onclick = () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        showMsg('錯誤', `無法進入全螢幕: ${err.message}`, 'error');
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
             };
+            
+            // 監聽全螢幕狀態改變按鈕文字與圖示
+            document.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement) {
+                    btnFullscreen.innerHTML = '<i class="fa-solid fa-compress mr-1.5"></i>離開全螢幕';
+                } else {
+                    btnFullscreen.innerHTML = '<i class="fa-solid fa-expand mr-1.5"></i>全螢幕';
+                }
+            });
+
+            // 登入按鈕與彈窗
+            document.getElementById('btn-login-modal').onclick = () => document.getElementById('modal-login').classList.add('active');
+            document.querySelectorAll('.close-login-modal').forEach(btn => btn.onclick = () => document.getElementById('modal-login').classList.remove('active'));
+
+            // 登入頁籤切換
+            document.getElementById('tab-student').onclick = () => {
+                document.getElementById('tab-student').className = "flex-1 py-2 text-sm font-bold rounded-md bg-white shadow text-blue-700 transition";
+                document.getElementById('tab-admin').className = "flex-1 py-2 text-sm font-bold rounded-md text-slate-500 hover:text-slate-700 transition";
+                document.getElementById('form-student').classList.remove('hidden');
+                document.getElementById('form-admin').classList.add('hidden');
+            };
+            document.getElementById('tab-admin').onclick = () => {
+                document.getElementById('tab-admin').className = "flex-1 py-2 text-sm font-bold rounded-md bg-white shadow text-slate-800 transition";
+                document.getElementById('tab-student').className = "flex-1 py-2 text-sm font-bold rounded-md text-slate-500 hover:text-slate-700 transition";
+                document.getElementById('form-admin').classList.remove('hidden');
+                document.getElementById('form-student').classList.add('hidden');
+            };
+
+            // 登入登出邏輯
+            document.getElementById('btn-login-class').onclick = handleClassLogin;
+            document.getElementById('btn-login-admin').onclick = handleAdminLogin;
+            document.getElementById('btn-logout').onclick = handleLogout;
+            
+            // 管理後台
+            document.getElementById('btn-admin-panel').onclick = () => document.getElementById('modal-admin').classList.add('active');
+            document.getElementById('btn-close-admin').onclick = () => document.getElementById('modal-admin').classList.remove('active');
+
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    document.querySelectorAll('.admin-tab-btn').forEach(b => {
+                        b.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600');
+                        b.classList.add('text-slate-600', 'hover:bg-slate-200');
+                    });
+                    e.target.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600');
+                    e.target.classList.remove('text-slate-600', 'hover:bg-slate-200');
+                    document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
+                    document.getElementById(e.target.dataset.target).classList.remove('hidden');
+                };
+            });
+
+            document.querySelectorAll('.close-form-modal').forEach(btn => {
+                btn.onclick = () => document.getElementById('modal-form').classList.remove('active');
+            });
+
+            document.getElementById('btn-add-class').onclick = () => openFormModal('class');
+            document.getElementById('btn-add-schedule').onclick = () => openFormModal('schedule');
+            document.getElementById('btn-add-announcement').onclick = () => openFormModal('announcement');
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('main-clock').innerText = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
 
         function clearSubscriptions() {
@@ -434,91 +416,37 @@
             state.unsubscribeFns = [];
         }
 
-        function setupUIBindings() {
-            // Clock
-            setInterval(updateClock, 1000);
-            updateClock();
-
-            // Login Modal Tabs
-            document.getElementById('tab-student').onclick = () => {
-                document.getElementById('tab-student').className = "flex-1 py-2 text-sm font-bold rounded-md bg-white shadow text-teal-700 transition";
-                document.getElementById('tab-admin').className = "flex-1 py-2 text-sm font-bold rounded-md text-gray-500 hover:text-gray-700 transition";
-                document.getElementById('form-student').classList.remove('hidden');
-                document.getElementById('form-admin').classList.add('hidden');
-            };
-            document.getElementById('tab-admin').onclick = () => {
-                document.getElementById('tab-admin').className = "flex-1 py-2 text-sm font-bold rounded-md bg-white shadow text-gray-800 transition";
-                document.getElementById('tab-student').className = "flex-1 py-2 text-sm font-bold rounded-md text-gray-500 hover:text-gray-700 transition";
-                document.getElementById('form-admin').classList.remove('hidden');
-                document.getElementById('form-student').classList.add('hidden');
-            };
-
-            // Login Actions
-            document.getElementById('btn-login-class').onclick = handleClassLogin;
-            document.getElementById('btn-login-admin').onclick = handleAdminLogin;
-            document.getElementById('btn-logout').onclick = handleLogout;
-            document.getElementById('btn-admin-panel').onclick = () => document.getElementById('modal-admin').classList.add('active');
-            document.getElementById('btn-close-admin').onclick = () => document.getElementById('modal-admin').classList.remove('active');
-
-            // Admin Tabs
-            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    document.querySelectorAll('.admin-tab-btn').forEach(b => {
-                        b.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600');
-                        b.classList.add('text-gray-600', 'hover:bg-gray-200');
-                    });
-                    const target = e.target;
-                    target.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600');
-                    target.classList.remove('text-gray-600', 'hover:bg-gray-200');
-                    
-                    document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
-                    document.getElementById(target.dataset.target).classList.remove('hidden');
-                };
-            });
-
-            // Form Modal Setup
-            document.querySelectorAll('.close-form-modal').forEach(btn => {
-                btn.onclick = () => document.getElementById('modal-form').classList.remove('active');
-            });
-
-            // Admin Add Buttons
-            document.getElementById('btn-add-class').onclick = () => openFormModal('class');
-            document.getElementById('btn-add-schedule').onclick = () => openFormModal('schedule');
-            document.getElementById('btn-add-announcement').onclick = () => openFormModal('announcement');
-
-            // Change Password
-            document.getElementById('btn-change-password').onclick = openChangePasswordModal;
+        function startPublicMode() {
+            state.role = 'public';
+            document.getElementById('btn-login-modal').classList.remove('hidden');
+            document.getElementById('btn-admin-panel').classList.add('hidden');
+            document.getElementById('btn-logout').classList.add('hidden');
+            
+            subscribeToData();
+            subscribeToAllClasses();
         }
 
-        function updateClock() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('main-clock').innerText = timeString;
-        }
-
-        // --- Authentication Logic ---
-        
-        async function handleClassLogin() {
+        function handleClassLogin() {
             const classId = document.getElementById('login-class-select').value;
             const pin = document.getElementById('login-class-pin').value;
             const errorEl = document.getElementById('login-error');
             
-            if (!classId || !pin) {
-                errorEl.innerText = "請選擇班級並輸入密碼";
-                errorEl.classList.remove('hidden');
-                return;
-            }
-
             const targetClass = state.classes.find(c => c.id === classId);
             if (targetClass && targetClass.pin === pin) {
                 state.role = 'class';
                 state.classInfo = targetClass;
                 document.getElementById('modal-login').classList.remove('active');
                 errorEl.classList.add('hidden');
-                startApp();
+                
+                clearSubscriptions();
+                document.getElementById('btn-login-modal').classList.add('hidden');
+                document.getElementById('btn-admin-panel').classList.add('hidden');
+                document.getElementById('btn-logout').classList.remove('hidden');
+                
+                subscribeToData(state.classInfo.grade);
+                subscribeToCurrentClass(state.classInfo.id);
             } else {
-                errorEl.innerText = "密碼錯誤";
-                errorEl.classList.remove('hidden');
+                errorEl.innerText = "密碼錯誤"; errorEl.classList.remove('hidden');
             }
         }
 
@@ -526,125 +454,75 @@
             const pass = document.getElementById('login-admin-pass').value;
             const errorEl = document.getElementById('login-error');
             
-            if (pass === 'admin' || pass === 'admin123') { // Simplified admin auth for demo
+            if (pass === 'admin') { 
                 state.role = 'admin';
                 document.getElementById('modal-login').classList.remove('active');
                 errorEl.classList.add('hidden');
-                startApp();
+                
+                clearSubscriptions();
+                document.getElementById('btn-login-modal').classList.add('hidden');
+                document.getElementById('btn-admin-panel').classList.remove('hidden');
+                document.getElementById('btn-logout').classList.remove('hidden');
+                
+                subscribeToData();
+                subscribeToAllClasses();
             } else {
-                errorEl.innerText = "管理員密碼錯誤";
-                errorEl.classList.remove('hidden');
+                errorEl.innerText = "管理員密碼錯誤"; errorEl.classList.remove('hidden');
             }
         }
 
         function handleLogout() {
-            state.role = null;
-            state.classInfo = null;
             clearSubscriptions();
-            document.getElementById('app').classList.add('hidden');
-            document.getElementById('modal-login').classList.add('active');
-            
-            // Reset inputs
             document.getElementById('login-class-pin').value = '';
             document.getElementById('login-admin-pass').value = '';
+            startPublicMode();
         }
-
-        // --- Main App Logic ---
-
-        function startApp() {
-            if(!user) return;
-            document.getElementById('app').classList.remove('hidden');
-            
-            // Setup Headers
-            if (state.role === 'admin') {
-                document.getElementById('display-class-name').innerText = "系統管理模式";
-                document.getElementById('display-grade').innerText = "全";
-                document.getElementById('display-mode-text').innerText = "(管理員預覽)";
-                document.getElementById('btn-admin-panel').classList.remove('hidden');
-                document.getElementById('btn-change-password').classList.add('hidden');
-                
-                // Admin sees everything
-                subscribeToData();
-                subscribeToAllClasses();
-            } else {
-                document.getElementById('display-class-name').innerText = state.classInfo.name;
-                document.getElementById('display-grade').innerText = state.classInfo.grade;
-                document.getElementById('display-mode-text').innerText = "";
-                document.getElementById('btn-admin-panel').classList.add('hidden');
-                document.getElementById('btn-change-password').classList.remove('hidden');
-                
-                // Class sees filtered data
-                subscribeToData(state.classInfo.grade);
-                subscribeToCurrentClass(state.classInfo.id);
-            }
-        }
-
-        // --- Realtime Subscriptions ---
 
         function subscribeToData(gradeFilter = null) {
-            if(!user) return;
-            
-            // 1. Schedules
             const schCol = collection(db, getCollectionPath('schedules'));
             const unsubSch = onSnapshot(schCol, (snapshot) => {
                 let schedules = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                if (gradeFilter) {
-                    schedules = schedules.filter(s => s.grade === gradeFilter || s.grade === 'all');
-                }
-                // Sort by start time locally
+                if (gradeFilter) schedules = schedules.filter(s => s.grade === gradeFilter || s.grade === 'all');
                 schedules.sort((a, b) => a.startTime.localeCompare(b.startTime));
                 state.schedules = schedules;
                 renderSchedules();
                 if(state.role === 'admin') renderAdminSchedules();
-            }, (error) => console.error("Schedule sync error:", error));
+            });
             state.unsubscribeFns.push(unsubSch);
 
-            // 2. Announcements
             const annCol = collection(db, getCollectionPath('announcements'));
             const unsubAnn = onSnapshot(annCol, (snapshot) => {
                 let announcements = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                // Local sort (descending timestamp)
                 announcements.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                
-                if (gradeFilter) {
-                    announcements = announcements.filter(a => a.grade === gradeFilter || a.grade === 'all');
-                }
+                if (gradeFilter) announcements = announcements.filter(a => a.grade === gradeFilter || a.grade === 'all');
                 state.announcements = announcements;
                 renderAnnouncements();
                 if(state.role === 'admin') renderAdminAnnouncements();
-            }, (error) => console.error("Announcement sync error:", error));
+            });
             state.unsubscribeFns.push(unsubAnn);
         }
 
         function subscribeToCurrentClass(classId) {
-            if(!user) return;
-            const classDoc = doc(db, getCollectionPath('classes'), classId);
-            const unsubClass = onSnapshot(classDoc, (docSnap) => {
+            const unsubClass = onSnapshot(doc(db, getCollectionPath('classes'), classId), (docSnap) => {
                 if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    updateAttendanceBoard(data.expected || 0, data.actual || 0);
+                    const d = docSnap.data();
+                    updateAttendanceBoard(d.expected || 0, d.actual || 0);
                 }
-            }, (error) => console.error("Class sync error:", error));
+            });
             state.unsubscribeFns.push(unsubClass);
         }
 
         function subscribeToAllClasses() {
-            if(!user) return;
-            const classCol = collection(db, getCollectionPath('classes'));
-            const unsubClasses = onSnapshot(classCol, (snapshot) => {
+            const unsubClasses = onSnapshot(collection(db, getCollectionPath('classes')), (snapshot) => {
                 state.classes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                // Admin dashboard rendering
-                renderAdminClasses();
+                if(state.role === 'admin') renderAdminClasses();
                 
-                // Aggregate counts for admin preview
                 const expected = state.classes.reduce((sum, c) => sum + (parseInt(c.expected)||0), 0);
                 const actual = state.classes.reduce((sum, c) => sum + (parseInt(c.actual)||0), 0);
                 updateAttendanceBoard(expected, actual);
-            }, (error) => console.error("Classes sync error:", error));
+            });
             state.unsubscribeFns.push(unsubClasses);
         }
-
-        // --- Render Functions ---
 
         function updateAttendanceBoard(expected, actual) {
             document.getElementById('board-expected').innerText = expected;
@@ -655,295 +533,149 @@
         function renderSchedules() {
             const container = document.getElementById('schedule-container');
             container.innerHTML = '';
-            
             if (state.schedules.length === 0) {
-                container.innerHTML = '<div class="text-gray-400 p-4 border border-dashed border-gray-500 rounded">目前無考試排程</div>';
+                container.innerHTML = '<div class="text-white p-4 opacity-50 mt-6">目前無考試排程</div>';
                 return;
             }
-
             state.schedules.forEach(s => {
-                const html = `
-                <div class="hand-drawn-border p-4 w-48 flex flex-col justify-between">
-                    <div class="flex justify-between items-center border-b border-gray-400/50 pb-2 mb-3">
-                        <span class="text-2xl font-bold tracking-widest">${s.subject}</span>
-                        <div class="text-gray-300 opacity-60 text-sm">
-                            <i class="fa-solid fa-pencil mr-1"></i><i class="fa-solid fa-eraser"></i>
-                        </div>
+                container.innerHTML += `
+                <div class="hand-drawn-border p-3 md:p-4 w-40 md:w-48 flex flex-col justify-between backdrop-blur-sm">
+                    <div class="flex justify-between items-center border-b border-white/30 pb-2 mb-3">
+                        <span class="text-xl md:text-2xl font-bold tracking-widest">${s.subject}</span>
+                        <div class="text-white/60 text-xs md:text-sm"><i class="fa-solid fa-pencil mr-1"></i><i class="fa-solid fa-eraser"></i></div>
                     </div>
-                    <div class="flex items-center text-lg font-mono tracking-wider font-bold">
-                        <i class="fa-regular fa-clock text-gray-400 mr-3 text-2xl"></i>
-                        <div>
-                            <div>${s.startTime}</div>
-                            <div class="text-gray-300">${s.endTime}</div>
-                        </div>
+                    <div class="flex items-center text-base md:text-lg font-mono tracking-wider font-bold">
+                        <i class="fa-regular fa-clock text-white/50 mr-2 md:mr-3 text-xl md:text-2xl"></i>
+                        <div><div>${s.startTime}</div><div class="text-white/70">${s.endTime}</div></div>
                     </div>
                 </div>`;
-                container.innerHTML += html;
             });
         }
 
         function renderAnnouncements() {
             const container = document.getElementById('announcement-container');
             const noDataState = document.getElementById('no-announcement-state');
-            const countLabel = document.getElementById('announcement-count-label');
+            document.getElementById('announcement-count-label').innerText = `共 ${state.announcements.length} 則`;
             
-            countLabel.innerText = `共 ${state.announcements.length} 則`;
-            container.innerHTML = '';
-
             if (state.announcements.length === 0) {
-                noDataState.classList.remove('hidden');
-                container.classList.add('hidden');
+                noDataState.classList.remove('hidden'); container.classList.add('hidden');
                 return;
             }
+            noDataState.classList.add('hidden'); container.classList.remove('hidden');
+            container.innerHTML = '';
 
-            noDataState.classList.add('hidden');
-            container.classList.remove('hidden');
-
-            state.announcements.forEach((a, index) => {
+            state.announcements.forEach((a, i) => {
                 const date = a.timestamp ? new Date(a.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-                const imgHtml = a.imageUrl ? `<img src="${a.imageUrl}" class="mt-4 max-w-full rounded border border-gray-200" alt="公告圖片" onerror="this.style.display='none'">` : '';
+                const imgHtml = a.imageUrl ? `<img src="${a.imageUrl}" class="mt-4 max-w-full rounded border border-slate-200">` : '';
                 
-                const html = `
-                <div class="bg-white border-2 border-amber-400 rounded-xl overflow-hidden shadow-sm transition hover:shadow-md cursor-pointer group" onclick="this.querySelector('.content-body').classList.toggle('hidden')">
-                    <div class="p-4 bg-amber-50/50 flex justify-between items-start group-hover:bg-amber-100/50 transition">
+                container.innerHTML += `
+                <div class="bg-white border border-amber-300 rounded-xl shadow-sm overflow-hidden cursor-pointer group" onclick="this.querySelector('.content-body').classList.toggle('hidden')">
+                    <div class="p-4 bg-amber-50/50 flex justify-between items-start group-hover:bg-amber-100/50">
                         <div>
-                            <span class="bg-amber-400 text-amber-900 text-xs font-bold px-2 py-1 rounded-md mb-2 inline-block">
-                                <i class="fa-solid fa-bullhorn mr-1"></i> 公告 #${index + 1}
-                            </span>
-                            <h3 class="text-2xl font-bold text-gray-800 mt-1">${a.title}</h3>
+                            <span class="bg-amber-400 text-amber-900 text-xs font-bold px-2 py-1 rounded mb-2 inline-block"><i class="fa-solid fa-bullhorn mr-1"></i> 公告 #${i + 1}</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">${a.title}</h3>
                         </div>
-                        <div class="text-sm bg-white px-2 py-1 border border-gray-200 rounded text-gray-500 font-bold">
-                            發布時間: ${date}
-                        </div>
+                        <div class="text-sm text-slate-500 font-bold bg-white px-2 py-1 rounded border">時間: ${date}</div>
                     </div>
-                    <div class="content-body p-5 border-t-2 border-dashed border-amber-200 text-gray-700 font-medium text-lg leading-relaxed bg-white">
+                    <div class="content-body p-5 border-t border-amber-100 text-slate-700 font-medium text-lg leading-relaxed bg-white">
                         ${a.content.replace(/\n/g, '<br>')}
                         ${imgHtml}
                     </div>
                 </div>`;
-                container.innerHTML += html;
             });
         }
 
-        // --- Admin Form Actions ---
-
+        // Admin CRUD (簡化)
         function openFormModal(type, dataId = null) {
             const modal = document.getElementById('modal-form');
-            const titleEl = document.getElementById('form-modal-title');
-            const bodyEl = document.getElementById('form-modal-body');
             const saveBtn = document.getElementById('btn-form-save');
-            
             let html = '';
             
             if (type === 'class') {
-                titleEl.innerText = dataId ? "編輯班級" : "新增班級";
-                const data = dataId ? state.classes.find(c => c.id === dataId) : { name: '', grade: '7', pin: '1234', expected: 30, actual: 30 };
-                
+                const d = dataId ? state.classes.find(c => c.id === dataId) : { name: '', grade: '7', pin: '1234', expected: 30, actual: 30 };
                 html = `
                     <div class="space-y-4">
-                        <div><label class="block text-sm font-bold mb-1">班級名稱</label><input type="text" id="inp-class-name" class="w-full border p-2 rounded" value="${data.name}" placeholder="例: 701"></div>
-                        <div><label class="block text-sm font-bold mb-1">年級</label><input type="text" id="inp-class-grade" class="w-full border p-2 rounded" value="${data.grade}" placeholder="例: 7"></div>
-                        <div><label class="block text-sm font-bold mb-1">登入密碼</label><input type="text" id="inp-class-pin" class="w-full border p-2 rounded" value="${data.pin}"></div>
-                        <div class="flex gap-4">
-                            <div class="flex-1"><label class="block text-sm font-bold mb-1">應到人數</label><input type="number" id="inp-class-expected" class="w-full border p-2 rounded" value="${data.expected}"></div>
-                            <div class="flex-1"><label class="block text-sm font-bold mb-1">實到人數</label><input type="number" id="inp-class-actual" class="w-full border p-2 rounded" value="${data.actual}"></div>
+                        <div><label class="font-bold text-sm">班級名稱</label><input type="text" id="i-name" class="w-full border p-2 rounded" value="${d.name}"></div>
+                        <div><label class="font-bold text-sm">年級</label><input type="text" id="i-grade" class="w-full border p-2 rounded" value="${d.grade}"></div>
+                        <div><label class="font-bold text-sm">密碼</label><input type="text" id="i-pin" class="w-full border p-2 rounded" value="${d.pin}"></div>
+                        <div class="flex gap-2">
+                            <div class="flex-1"><label class="font-bold text-sm">應到</label><input type="number" id="i-exp" class="w-full border p-2 rounded" value="${d.expected}"></div>
+                            <div class="flex-1"><label class="font-bold text-sm">實到</label><input type="number" id="i-act" class="w-full border p-2 rounded" value="${d.actual}"></div>
                         </div>
-                    </div>
-                `;
-                
+                    </div>`;
                 saveBtn.onclick = async () => {
-                    const payload = {
-                        name: document.getElementById('inp-class-name').value,
-                        grade: document.getElementById('inp-class-grade').value,
-                        pin: document.getElementById('inp-class-pin').value,
-                        expected: parseInt(document.getElementById('inp-class-expected').value),
-                        actual: parseInt(document.getElementById('inp-class-actual').value)
-                    };
-                    if(!payload.name) return alert('名稱必填');
-                    
-                    try {
-                        if (dataId) await updateDoc(doc(db, getCollectionPath('classes'), dataId), payload);
-                        else await addDoc(collection(db, getCollectionPath('classes')), payload);
-                        modal.classList.remove('active');
-                        showMsg('成功', '班級資料已儲存', 'success');
-                    } catch (e) { showMsg('錯誤', e.message, 'error'); }
+                    const p = { name: document.getElementById('i-name').value, grade: document.getElementById('i-grade').value, pin: document.getElementById('i-pin').value, expected: parseInt(document.getElementById('i-exp').value), actual: parseInt(document.getElementById('i-act').value) };
+                    if(dataId) await updateDoc(doc(db, getCollectionPath('classes'), dataId), p);
+                    else await addDoc(collection(db, getCollectionPath('classes')), p);
+                    modal.classList.remove('active'); showMsg('成功', '儲存完畢', 'success');
                 };
-
             } else if (type === 'schedule') {
-                titleEl.innerText = dataId ? "編輯時程" : "新增時程";
-                const data = dataId ? state.schedules.find(s => s.id === dataId) : { subject: '', grade: '7', startTime: '08:10', endTime: '09:30' };
-                
+                const d = dataId ? state.schedules.find(s => s.id === dataId) : { subject: '', grade: '7', startTime: '08:10', endTime: '09:30' };
                 html = `
                     <div class="space-y-4">
-                        <div><label class="block text-sm font-bold mb-1">科目</label><input type="text" id="inp-sch-subject" class="w-full border p-2 rounded" value="${data.subject}" placeholder="例: 國文"></div>
-                        <div><label class="block text-sm font-bold mb-1">適用年級</label><input type="text" id="inp-sch-grade" class="w-full border p-2 rounded" value="${data.grade}" placeholder="例: 7 (或填全代表全校)"></div>
-                        <div class="flex gap-4">
-                            <div class="flex-1"><label class="block text-sm font-bold mb-1">開始時間</label><input type="time" id="inp-sch-start" class="w-full border p-2 rounded" value="${data.startTime}"></div>
-                            <div class="flex-1"><label class="block text-sm font-bold mb-1">結束時間</label><input type="time" id="inp-sch-end" class="w-full border p-2 rounded" value="${data.endTime}"></div>
+                        <div><label class="font-bold text-sm">科目</label><input type="text" id="i-sub" class="w-full border p-2 rounded" value="${d.subject}"></div>
+                        <div><label class="font-bold text-sm">適用年級</label><input type="text" id="i-grd" class="w-full border p-2 rounded" value="${d.grade}"></div>
+                        <div class="flex gap-2">
+                            <div class="flex-1"><label class="font-bold text-sm">開始</label><input type="time" id="i-st" class="w-full border p-2 rounded" value="${d.startTime}"></div>
+                            <div class="flex-1"><label class="font-bold text-sm">結束</label><input type="time" id="i-et" class="w-full border p-2 rounded" value="${d.endTime}"></div>
                         </div>
-                    </div>
-                `;
-                
+                    </div>`;
                 saveBtn.onclick = async () => {
-                    const payload = {
-                        subject: document.getElementById('inp-sch-subject').value,
-                        grade: document.getElementById('inp-sch-grade').value,
-                        startTime: document.getElementById('inp-sch-start').value,
-                        endTime: document.getElementById('inp-sch-end').value
-                    };
-                    if(!payload.subject) return;
-                    try {
-                        if (dataId) await updateDoc(doc(db, getCollectionPath('schedules'), dataId), payload);
-                        else await addDoc(collection(db, getCollectionPath('schedules')), payload);
-                        modal.classList.remove('active');
-                        showMsg('成功', '排程已儲存', 'success');
-                    } catch (e) { showMsg('錯誤', e.message, 'error'); }
+                    const p = { subject: document.getElementById('i-sub').value, grade: document.getElementById('i-grd').value, startTime: document.getElementById('i-st').value, endTime: document.getElementById('i-et').value };
+                    if(dataId) await updateDoc(doc(db, getCollectionPath('schedules'), dataId), p);
+                    else await addDoc(collection(db, getCollectionPath('schedules')), p);
+                    modal.classList.remove('active'); showMsg('成功', '儲存完畢', 'success');
                 };
-
             } else if (type === 'announcement') {
-                titleEl.innerText = dataId ? "編輯公告" : "新增公告";
-                const data = dataId ? state.announcements.find(a => a.id === dataId) : { title: '', content: '', imageUrl: '', grade: '7' };
-                
+                const d = dataId ? state.announcements.find(a => a.id === dataId) : { title: '', content: '', imageUrl: '', grade: '7' };
                 html = `
                     <div class="space-y-4">
-                        <div><label class="block text-sm font-bold mb-1">標題</label><input type="text" id="inp-ann-title" class="w-full border p-2 rounded" value="${data.title}"></div>
-                        <div><label class="block text-sm font-bold mb-1">適用年級</label><input type="text" id="inp-ann-grade" class="w-full border p-2 rounded" value="${data.grade}" placeholder="例: 7 (或 'all' 給全校)"></div>
-                        <div><label class="block text-sm font-bold mb-1">內容</label><textarea id="inp-ann-content" class="w-full border p-2 rounded h-24">${data.content}</textarea></div>
-                        <div><label class="block text-sm font-bold mb-1">圖片網址 (選填)</label><input type="text" id="inp-ann-img" class="w-full border p-2 rounded" value="${data.imageUrl}" placeholder="http://..."></div>
-                    </div>
-                `;
-                
+                        <div><label class="font-bold text-sm">標題</label><input type="text" id="i-ti" class="w-full border p-2 rounded" value="${d.title}"></div>
+                        <div><label class="font-bold text-sm">適用年級</label><input type="text" id="i-gr" class="w-full border p-2 rounded" value="${d.grade}"></div>
+                        <div><label class="font-bold text-sm">內容</label><textarea id="i-co" class="w-full border p-2 rounded h-24">${d.content}</textarea></div>
+                        <div><label class="font-bold text-sm">圖片網址</label><input type="text" id="i-im" class="w-full border p-2 rounded" value="${d.imageUrl}"></div>
+                    </div>`;
                 saveBtn.onclick = async () => {
-                    const payload = {
-                        title: document.getElementById('inp-ann-title').value,
-                        grade: document.getElementById('inp-ann-grade').value,
-                        content: document.getElementById('inp-ann-content').value,
-                        imageUrl: document.getElementById('inp-ann-img').value,
-                        timestamp: Date.now()
-                    };
-                    if(!payload.title) return;
-                    try {
-                        if (dataId) await updateDoc(doc(db, getCollectionPath('announcements'), dataId), payload);
-                        else await addDoc(collection(db, getCollectionPath('announcements')), payload);
-                        modal.classList.remove('active');
-                        showMsg('成功', '公告已發布', 'success');
-                    } catch (e) { showMsg('錯誤', e.message, 'error'); }
+                    const p = { title: document.getElementById('i-ti').value, grade: document.getElementById('i-gr').value, content: document.getElementById('i-co').value, imageUrl: document.getElementById('i-im').value, timestamp: Date.now() };
+                    if(dataId) await updateDoc(doc(db, getCollectionPath('announcements'), dataId), p);
+                    else await addDoc(collection(db, getCollectionPath('announcements')), p);
+                    modal.classList.remove('active'); showMsg('成功', '儲存完畢', 'success');
                 };
             }
-            
-            bodyEl.innerHTML = html;
+            document.getElementById('form-modal-body').innerHTML = html;
             modal.classList.add('active');
         }
 
-        // Expose to window for inline onclick in generated HTML tables
         window.editItem = openFormModal;
         window.deleteItem = async (type, id) => {
-            if(confirm("確定要刪除嗎？")) {
-                try {
-                    let colPath = '';
-                    if (type === 'class') colPath = 'classes';
-                    if (type === 'schedule') colPath = 'schedules';
-                    if (type === 'announcement') colPath = 'announcements';
-                    await deleteDoc(doc(db, getCollectionPath(colPath), id));
-                    showMsg('成功', '資料已刪除', 'success');
-                } catch (e) { showMsg('錯誤', e.message, 'error'); }
+            if(confirm("確定刪除？")) {
+                let p = type === 'class' ? 'classes' : type === 'schedule' ? 'schedules' : 'announcements';
+                await deleteDoc(doc(db, getCollectionPath(p), id));
             }
         };
 
         function renderAdminClasses() {
-            const tbody = document.getElementById('admin-class-list');
-            tbody.innerHTML = '';
-            state.classes.sort((a,b)=>a.name.localeCompare(b.name)).forEach(c => {
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3 font-bold">${c.name}</td>
-                        <td class="p-3">${c.grade}</td>
-                        <td class="p-3 text-gray-500">${c.pin}</td>
-                        <td class="p-3"><span class="text-blue-600 font-bold">${c.actual}</span> / ${c.expected}</td>
-                        <td class="p-3">
-                            <button onclick="editItem('class', '${c.id}')" class="text-blue-500 hover:text-blue-700 mr-2"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteItem('class', '${c.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
+            const tbody = document.getElementById('admin-class-list'); tbody.innerHTML = '';
+            state.classes.forEach(c => tbody.innerHTML += `<tr><td class="p-3">${c.name}</td><td class="p-3">${c.grade}</td><td class="p-3">${c.pin}</td><td class="p-3">${c.actual}/${c.expected}</td><td class="p-3"><button onclick="editItem('class', '${c.id}')" class="text-blue-500 mr-2"><i class="fa-solid fa-pen"></i></button><button onclick="deleteItem('class', '${c.id}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`);
         }
-
         function renderAdminSchedules() {
-            const tbody = document.getElementById('admin-schedule-list');
-            tbody.innerHTML = '';
-            state.schedules.forEach(s => {
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3 font-bold">${s.subject}</td>
-                        <td class="p-3">${s.grade}</td>
-                        <td class="p-3">${s.startTime} - ${s.endTime}</td>
-                        <td class="p-3">
-                            <button onclick="editItem('schedule', '${s.id}')" class="text-blue-500 hover:text-blue-700 mr-2"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteItem('schedule', '${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
+            const tbody = document.getElementById('admin-schedule-list'); tbody.innerHTML = '';
+            state.schedules.forEach(s => tbody.innerHTML += `<tr><td class="p-3">${s.subject}</td><td class="p-3">${s.grade}</td><td class="p-3">${s.startTime}-${s.endTime}</td><td class="p-3"><button onclick="editItem('schedule', '${s.id}')" class="text-blue-500 mr-2"><i class="fa-solid fa-pen"></i></button><button onclick="deleteItem('schedule', '${s.id}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`);
         }
-
         function renderAdminAnnouncements() {
-            const container = document.getElementById('admin-announcement-list');
-            container.innerHTML = '';
-            state.announcements.forEach(a => {
-                const date = new Date(a.timestamp).toLocaleString();
-                container.innerHTML += `
-                    <div class="border rounded p-4 flex justify-between items-center bg-gray-50">
-                        <div>
-                            <h4 class="font-bold text-gray-800">${a.title} <span class="text-xs bg-gray-200 px-2 rounded text-gray-600 ml-2">對象: ${a.grade}</span></h4>
-                            <p class="text-sm text-gray-500 mt-1">${date}</p>
-                        </div>
-                        <div>
-                            <button onclick="editItem('announcement', '${a.id}')" class="bg-white border text-blue-500 px-3 py-1 rounded hover:bg-blue-50 mr-2"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteItem('announcement', '${a.id}')" class="bg-white border text-red-500 px-3 py-1 rounded hover:bg-red-50"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
+            const c = document.getElementById('admin-announcement-list'); c.innerHTML = '';
+            state.announcements.forEach(a => c.innerHTML += `<div class="border rounded p-3 flex justify-between bg-slate-50"><div><h4 class="font-bold">${a.title} (對象: ${a.grade})</h4></div><div><button onclick="editItem('announcement', '${a.id}')" class="text-blue-500 mr-2"><i class="fa-solid fa-pen"></i></button><button onclick="deleteItem('announcement', '${a.id}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></div></div>`);
         }
 
-        // --- Class Specific Actions ---
-
-        function openChangePasswordModal() {
-            const modal = document.getElementById('modal-form');
-            document.getElementById('form-modal-title').innerText = "修改班級密碼";
-            
-            const html = `
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold mb-1">新密碼</label>
-                        <input type="password" id="inp-new-pin" class="w-full border p-2 rounded" placeholder="請輸入新密碼">
-                    </div>
-                </div>
-            `;
-            document.getElementById('form-modal-body').innerHTML = html;
-            
-            document.getElementById('btn-form-save').onclick = async () => {
-                const newPin = document.getElementById('inp-new-pin').value;
-                if(!newPin || newPin.length < 4) {
-                    return showMsg('提示', '密碼不得少於4個字元', 'error');
-                }
-                try {
-                    await updateDoc(doc(db, getCollectionPath('classes'), state.classInfo.id), { pin: newPin });
-                    state.classInfo.pin = newPin; // update local
-                    modal.classList.remove('active');
-                    showMsg('成功', '密碼修改成功！下次登入請使用新密碼。', 'success');
-                } catch(e) {
-                    showMsg('錯誤', e.message, 'error');
-                }
-            };
-            
-            modal.classList.add('active');
+        function showMsg(title, content, type='info') {
+            const m = document.getElementById('modal-msg');
+            document.getElementById('msg-title').innerText = title; document.getElementById('msg-content').innerText = content;
+            document.getElementById('msg-icon').innerHTML = type === 'error' ? '<i class="fa-solid fa-circle-exclamation text-red-500"></i>' : '<i class="fa-solid fa-circle-check text-green-500"></i>';
+            m.classList.add('active');
+            document.getElementById('btn-msg-ok').onclick = () => m.classList.remove('active');
         }
 
-        // Bootstrap App
         window.addEventListener('DOMContentLoaded', initFirebase);
-
     </script>
 </body>
 </html>
